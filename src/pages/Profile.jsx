@@ -98,6 +98,7 @@ const Profile = () => {
     return <div>Loading...</div>;
   }
 
+
   return (
     <div className="container">
       <h1>Welcome {user?.name}</h1>
@@ -108,7 +109,11 @@ const Profile = () => {
         <button className="btn" onClick={() => setFilter('1year')}>1 Year</button>
         <button className="btn" onClick={() => setFilter('AllTime')}>All Time</button>
       </div>
-      <TransactionChart data={data} labels={labels} />
+      {filteredTransactions.length > 0 ? (
+        <TransactionChart data={data} labels={labels} />
+      ) : (
+        <div>No transactions to view.</div>
+      )}
     </div>
   );
 }
