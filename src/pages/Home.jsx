@@ -41,6 +41,7 @@ function Home() {
       console.error('Error fetching transactions:', error);
     }
   };
+  
 
   async function checkAuthStatus() {
     try {
@@ -62,7 +63,7 @@ function Home() {
 
   function handleSubmit(ev) {
     ev.preventDefault();
-
+  
     if (
       datetime === "" ||
       description === "" ||
@@ -72,10 +73,10 @@ function Home() {
       setError(true);
       return;
     }
-
+  
     const price = name.split(" ")[0];
     const email = user.email;
-
+  
     transactionService.postTransaction(price, name, description, datetime, email)
       .then(response => {
         if (response.ok) {
@@ -84,7 +85,8 @@ function Home() {
             setDatetime("");
             setDescription("");
             setError(false);
-
+  
+            // Fetch transactions again to update the transactions list
             fetchTransactions(email);
           });
         } else {

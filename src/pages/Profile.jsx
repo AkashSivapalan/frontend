@@ -3,7 +3,6 @@ import { aggregateTransactionByMonth } from '../utils/aggregateTransactionByMont
 import TransactionChart from '../components/TransactionChart';
 import transactionService from "../utils/transactionService";
 
-
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,7 +21,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (user) {
-      getTransactions(user.email).then((filteredTransactions) => {
+      fetchTransactions(user.email).then((filteredTransactions) => {
         setTransactions(filteredTransactions.reverse());
       });
     }
@@ -50,13 +49,18 @@ const Profile = () => {
     }
   }
 
-  async function getTransactions() {
-    return transactionService.getTransactions(user)
+  async function fetchTransactions(email) {
+    try {
+      const transactions = await transactionService.getTransactions({ email });
+      return transactions;
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      return [];
+    }
   }
 
   function filterTransactions(filter) {
     const now = new Date();
-    let filtered = [];
     let startDate;
     let endDate = new Date(now); 
     switch (filter) {
@@ -70,22 +74,24 @@ const Profile = () => {
         startDate = new Date(now.setFullYear(now.getFullYear() - 1));
         break;
       default:
-        filtered = transactions;
-        break;
+        setFilteredTransactions(transactions);
+        return;
     }
   
-    if (startDate) {
-      filtered = transactions.filter(transaction => {
-        const date = new Date(transaction.datetime);
-        return date >= startDate && date <= endDate; 
-      });
-    }
+    const filtered = transactions.filter(transaction => {
+      const date = new Date(transaction.datetime);
+      return date >= startDate && date <= endDate; 
+    });
   
     setFilteredTransactions(filtered);
   }
 
   const aggregatedData = aggregateTransactionByMonth(filteredTransactions);
-  const labels = Object.keys(aggregatedData);
+  const labels = Object.keys(aggregatedData).sort((a, b) => {
+    const dateA = new Date(a);
+    const dateB = new Date(b);
+    return dateA - dateB;
+  });
   const data = Object.values(aggregatedData);
 
   if (loading) {
@@ -97,10 +103,10 @@ const Profile = () => {
       <h1>Welcome {user?.name}</h1>
       <h2>Net value of transactions over each month</h2>
       <div className="filter-buttons">
-        <button class="btn" onClick={() => setFilter('3months')}>3 Months</button>
-        <button class="btn" onClick={() => setFilter('6months')}>6 Months</button>
-        <button class="btn" onClick={() => setFilter('1year')}>1 Year</button>
-        <button class="btn" onClick={() => setFilter('AllTime')}>All Time</button>
+        <button className="btn" onClick={() => setFilter('3months')}>3 Months</button>
+        <button className="btn" onClick={() => setFilter('6months')}>6 Months</button>
+        <button className="btn" onClick={() => setFilter('1year')}>1 Year</button>
+        <button className="btn" onClick={() => setFilter('AllTime')}>All Time</button>
       </div>
       <TransactionChart data={data} labels={labels} />
     </div>
