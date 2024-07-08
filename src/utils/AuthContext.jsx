@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const response = await fetch(import.meta.env.VITE_REACT_APP_API_URL + '/check-auth', {
+                const response = await fetch(import.meta.env.VITE_REACT_APP_API_URL +'/check-auth', {
                     method: 'GET',
                     credentials: 'include',
                 });
@@ -19,14 +19,15 @@ export const AuthProvider = ({ children }) => {
                 if (data.status === 'ok') {
                     setUser(data.user);
                 } else {
-                    setUser(null); // Clear user state if not authenticated
+                    setUser(null);
                 }
             } catch (error) {
                 console.error("Error checking authentication status:", error);
-                setUser(null); // Clear user state on error
+                setUser(null);
             }
             setLoading(false);
         };
+
         checkAuth();
     }, []);
     
@@ -61,6 +62,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logoutUser = async () => {
+     
         try {
             const url = `${import.meta.env.VITE_REACT_APP_API_URL}/logout`;
             const res = await fetch(url, {
@@ -69,15 +71,14 @@ export const AuthProvider = ({ children }) => {
             });
     
             if (res.ok) {
-                setUser(null); 
+                setUser(null);
             } else {
                 console.error('Logout failed:', res.statusText);
             }
         } catch (error) {
-            console.error('Logout error:', error);
+            console.log('Logout error:', error);
         }
     };
-    
 
     const registerUser = async (userInfo) => { 
         setLoading(true);
